@@ -10,14 +10,21 @@ import ContactDetail from "./ContactDetail";
 import EditContact from "./EditContact";
 
 function App() {
-  const LOCAL_STORAGE_KEY = "contacts";
+ // const LOCAL_STORAGE_KEY = "contacts";
   const [contacts, setContacts] = useState([]);
 
   //RetrieveContacts
   const retrieveContacts = async () => {
-    const response = await api.get("/contacts");
+    const response = await api.get("/contact");
+   // console.log(response.data)
     return response.data;
+
   };
+  const getAllCOntacts = async () => {
+    const allContacts = await retrieveContacts();
+    if (allContacts) setContacts(allContacts);
+  };
+
 
   const addContactHandler = async (contact) => {
     console.log(contact);
@@ -26,41 +33,43 @@ function App() {
       ...contact,
     };
 
-    const response = await api.post("/contacts", request);
+    const response = await api.post("/contact", request);
     console.log(response);
     setContacts([...contacts, response.data]);
+    getAllCOntacts();
   };
 
   const updateContactHandler = async (contact) => {
-    const response = await api.put(`/contacts/${contact.id}`, contact);
+    const response = await api.put(`/contact/${contact.id}`, contact);
     console.log(response.data.name)
-    const { id, name, email } = response.data;
+    const { id} = response.data;
     setContacts(
       contacts.map((contact) => {
         return contact.id === id ? { ...response.data } : contact;
       })
     );
+    getAllCOntacts()
   };
 
   const removeContactHandler = async (id) => {
-    await api.delete(`/contacts/${id}`);
+    await api.delete(`/contact/${id}`);
     const newContactList = contacts.filter((contact) => {
       return contact.id !== id;
     });
 
     setContacts(newContactList);
+   getAllCOntacts()
   };
+
+
+  
 
   useEffect(() => {
     // const retriveContacts = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
     // if (retriveContacts) setContacts(retriveContacts);
-    const getAllCOntacts = async () => {
-      const allContacts = await retrieveContacts();
-      if (allContacts) setContacts(allContacts);
-    };
-
+   
     getAllCOntacts();
-  }, []);
+  });
 
   useEffect(() => {
     //localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(contacts));
